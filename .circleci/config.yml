@@ -113,13 +113,13 @@ jobs:
 
   scan-backend:
     docker:
-      -  image: circleci/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
+      - restore_cache: 
           keys: [backend-build]
-      - run:
-          name: back-end Scan
+      - run: 
+          name: Back-end Scan
           command: |
             cd backend
             npm install
