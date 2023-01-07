@@ -1,37 +1,37 @@
 version: 2.1
 
 commands:
-  install_awscli:
-    description: Install AWS CLI v2
-    steps:
-      - run:
-          name: Install AWS CLI v2
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-  install_ansible:
-    description: Install Ansible
-    steps:
-      - run:
-          name: Install Ansible
-          command: |
-            sudo apt update
-            sudo apt install software-properties-common -y
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible -y
-  install_nodejs:
-    description: Install Node.js 13
-    steps:
-      - run:
-          name: Install Node.js 13
-          command: |
-            # Install Node.js LTS version as our base Node.js version
-            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-            sudo apt install -y nodejs
-            # Use n version manager to use Node.js v13.8.0
-            sudo npm install --global n
-            sudo n 13.8.0
+  # install_awscli:
+  #   description: Install AWS CLI v2
+  #   steps:
+  #     - run:
+  #         name: Install AWS CLI v2
+  #         command: |
+  #           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  #           unzip awscliv2.zip
+  #           sudo ./aws/install
+  # install_ansible:
+  #   description: Install Ansible
+  #   steps:
+  #     - run:
+  #         name: Install Ansible
+  #         command: |
+  #           sudo apt update
+  #           sudo apt install software-properties-common -y
+  #           sudo add-apt-repository --yes --update ppa:ansible/ansible
+  #           sudo apt install ansible -y
+  # install_nodejs:
+  #   description: Install Node.js 13
+  #   steps:
+  #     - run:
+  #         name: Install Node.js 13
+  #         command: |
+  #           # Install Node.js LTS version as our base Node.js version
+  #           curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+  #           sudo apt install -y nodejs
+  #           # Use n version manager to use Node.js v13.8.0
+  #           sudo npm install --global n
+  #           sudo n 13.8.0
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -163,7 +163,7 @@ jobs:
         - image: cimg/aws:2022.06
       steps:
         - checkout
-        - install_awscli
+        # - install_awscli
         - run:
             name: Ensure back-end infrastructure exists
             command: |
@@ -202,10 +202,18 @@ jobs:
       - image: cimg/aws:2022.06
     steps:
       - checkout
-      - install_awscli
-      - install_ansible
+      # - install_awscli
+      # - install_ansible
       - add_ssh_keys:
           fingerprints: ["1b:d0:c3:9f:81:7d:7e:e3:5f:44:4d:78:15:f4:86:7d"]
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt update 
+            sudo apt upgrade
+            sudo apt install ansible && sudo apt install tar 
+            sudo apt install gzip
+          
       - attach_workspace:
           at: ~/
       - run:
