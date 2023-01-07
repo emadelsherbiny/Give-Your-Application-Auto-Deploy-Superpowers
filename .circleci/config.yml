@@ -157,6 +157,7 @@ jobs:
             name: Back-end Scan
             command: |
               cd backend
+              npm install
               npm audit fix --audit-level=critical --force
 
   deploy-infrastructure:
@@ -228,7 +229,7 @@ jobs:
 
   run-migrations:
       docker:
-        - image: circleci/node:13.8.0
+        - image: cimg/node:13.8.0
       steps:
         - checkout
         - run:
