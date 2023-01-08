@@ -197,21 +197,13 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: cimg/aws:2022.06
+      - image: cimg/base:stable
     steps:
       - checkout
-      # - install_awscli
-      # - install_ansible
+      - install_awscli
+      - install_ansible
       - add_ssh_keys:
           fingerprints: ["1b:d0:c3:9f:81:7d:7e:e3:5f:44:4d:78:15:f4:86:7d"]
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt update 
-            sudo apt upgrade
-            sudo apt install ansible && sudo apt install tar 
-            sudo apt install gzip
-          
       - attach_workspace:
           at: ~/
       - run:
