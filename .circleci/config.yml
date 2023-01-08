@@ -285,36 +285,42 @@ jobs:
                     
   deploy-backend:
       docker:
-        - image: python:3.7-alpine3.17
+        - image: cimg/base:stable
       steps:
         - checkout
+        - install_awscli
+        - install_ansible
+        - install_nodejs
         - add_ssh_keys:
-            fingerprints:
-              - "1b:d0:c3:9f:81:7d:7e:e3:5f:44:4d:78:15:f4:86:7d"
-        - run:
-            name: Install dependencies
-            command: |
-              apk add --update --no-cache tar gzip ansible npm aws-cli curl
+            fingerprints: ["d9:06:93:7c:dd:ac:25:bf:3d:f3:10:f5:5d:69:f6:67"]
         - attach_workspace:
             at: ~/
         - restore_cache:
             keys: [backend-build]
         - run:
-            name: Deploy backend
+            name: Install dependencies
             command: |
               cd backend
               npm install
+        - run:
+            name: Package Backend
+            command: |
+              cd backend
               npm run build
+              tar -czf artifact.tar.gz dist/* package*
               cd ..
-              tar -C backend -czvf artifact.tar.gz .
-              mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
-              mv artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files/artifact.tar.gz
+              cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+        - run:
+            name: Deploy backend
+            command: |
+              export TYPEORM_MIGRATIONS_DIR=./migrations
+              export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+              export TYPEORM_MIGRATIONS=./migrations/*.ts
               cd .circleci/ansible
-              echo "Contents  of the inventory.txt file is $(cat inventory.txt)"
               cat inventory.txt
               ansible-playbook -i inventory.txt deploy-backend.yml
-              - destroy-environment
-              - revert-migrations
+        - destroy-environment
+        - revert-migrations
 #     docker:
 #       # Docker image here that supports Ansible
 #     steps:
