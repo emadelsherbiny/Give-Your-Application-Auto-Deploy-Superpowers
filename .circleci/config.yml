@@ -277,18 +277,22 @@ jobs:
                     
   deploy-backend:
       docker:
-        - image: cimg/base:stable
+        # Docker image here that supports Ansible
+        - image: cimg/python:3.10
       steps:
+        # Checkout code from git
         - checkout
-        - install_awscli
         - install_ansible
+        - install_awscli
         - install_nodejs
-        - add_ssh_keys:
-            fingerprints: ["1b:d0:c3:9f:81:7d:7e:e3:5f:44:4d:78:15:f4:86:7d"]
-        - attach_workspace:
-            at: ~/
         - restore_cache:
             keys: [backend-build]
+        # Add ssh keys with fingerprint
+        - add_ssh_keys:
+            fingerprints: ["1b:d0:c3:9f:81:7d:7e:e3:5f:44:4d:78:15:f4:86:7d"]
+        # attach workspace
+        - attach_workspace:
+            at: ~/
         - run:
             name: Install dependencies
             command: |
@@ -301,18 +305,24 @@ jobs:
               npm run build
               tar -czf artifact.tar.gz dist/* package*
               cd ..
-              cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+              cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files      
         - run:
             name: Deploy backend
             command: |
               export TYPEORM_MIGRATIONS_DIR=./migrations
               export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
               export TYPEORM_MIGRATIONS=./migrations/*.ts
+              BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
               cd .circleci/ansible
+              echo $BACKEND_PUBLIC_IP >> inventory.txt
               cat inventory.txt
               ansible-playbook -i inventory.txt deploy-backend.yml
+        # Here's where you will add some code to rollback on failure 
         - destroy-environment
-        - revert-migrations
+        - revert-migrations 
 #     docker:
 #       # Docker image here that supports Ansible
 #     steps:
