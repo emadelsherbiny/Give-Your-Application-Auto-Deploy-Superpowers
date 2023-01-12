@@ -2,12 +2,14 @@
 https://github.com/emadelsherbiny/Give-Your-Application-Auto-Deploy-Superpowers
 
 [URL02]
-https://udapeople-dbebc65.s3.amazonaws.com/index.html
+
+http://udapeople-13c2d99.s3-website-us-east-1.amazonaws.com/#/employees
 
  [URL03]
 http://d2e47l2dxch3ro.cloudfront.net/#/employees
  [URL04]
-http://52.0.217.118:3030/
+http://18.211.80.145:3030/
+http://18.211.80.145:3030/api/status
 
 [URL05]
 http://54.144.70.76:9090/
